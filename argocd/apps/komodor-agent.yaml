@@ -1,1 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: komodor-agent
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: komodor
+  source:
+    repoURL: https://helm-charts.komodor.io
+    chart: komodor-agent
+    # auto-track latest 2.x; pin to a version if you prefer (e.g., "2.12.2")
+    targetRevision: "2.*"
+    helm:
+      # Inline values so we can use a Helm repo and still customize
+      values: |
+        agent:
+          clusterName: neu-ulm-eks   # <- change to how you want it to appear in Komodor
+        credentials:
+          existingSecret: komodor-agent-credentials
+          existingSecretKey: apiKey
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
 
